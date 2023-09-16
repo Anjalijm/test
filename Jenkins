@@ -33,19 +33,20 @@ pipeline {
 
         stage('Deploy to GKE') {
             steps {
-                sh "sed -i 's/hello:latest/hello:${env.BUILD_ID}/g' deployment.yaml"
-                
-                // Deploy to Google Kubernetes Engine (GKE)
-                step([$class: 'KubernetesEngineBuilder',
-                    projectId: env.PROJECT_ID,
-                    clusterName: env.CLUSTER_NAME,
-                    location: env.LOCATION,
-                    credentialsId: env.CREDENTIALS_ID,
-                    containerName: 'hello-container', // Specify your container name
-                    image: "afroz2022/hello:${env.BUILD_ID}",
-                    replicas: 3 // Specify the number of replicas you want
-                ])
-            }
-        }
+            sh "ls -al" // List files in the current directory for debugging purposes
+            sh "sed -i 's/hello:latest/hello:${env.BUILD_ID}/g' deployment.yaml"
+        
+        // Deploy to Google Kubernetes Engine (GKE)
+            step([$class: 'KubernetesEngineBuilder',
+            projectId: env.PROJECT_ID,
+            clusterName: env.CLUSTER_NAME,
+            location: env.LOCATION,
+            credentialsId: env.CREDENTIALS_ID,
+            yamlFilePath: 'path/to/deployment.yaml', // Check this path
+            // Specify other parameters as needed
+        ])
+    }
+}
+
     }
 }
