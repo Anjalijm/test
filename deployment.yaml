@@ -5,8 +5,9 @@ metadata:
   labels:
     app: hello
 spec:
-  strategy:
-    type: Recreate
+  selector:
+    matchLabels:
+      app: hello
   template:
     metadata:
       labels:
