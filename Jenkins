@@ -15,24 +15,18 @@ pipeline {
             }
         }
 
-        stage("Build image") {
+        stage("Build and Push image") {
             steps {
                 script {
-                    // Define myapp as a Docker image object
-                    def myapp = docker.build("afroz2022/hello:${env.BUILD_ID}")
-                    // Set it as an environment variable to make it accessible in other stages
-                    env.MY_APP = myapp
-                }
-            }
-        }
+                    // Define the Docker image name
+                    def imageName = "afroz2022/hello:${env.BUILD_ID}"
 
-        stage("Push image") {
-            steps {
-                script {
+                    // Build the Docker image
+                    docker.build(imageName).push()
+
+                    // Push the image with a specific tag
                     docker.withRegistry('https://registry.hub.docker.com', 'afroz2022') {
-                        // Access myapp from the environment and push the image
-                        env.MY_APP.push("latest")
-                        env.MY_APP.push("${env.BUILD_ID}")
+                        docker.image(imageName).push("latest")
                     }
                 }
             }
