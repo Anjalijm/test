@@ -18,7 +18,7 @@ pipeline {
         stage("Build image") {
             steps {
                 script {
-                    // Define myapp at the pipeline level
+                    // Define myapp as a Docker image object
                     def myapp = docker.build("afroz2022/hello:${env.BUILD_ID}")
                     // Set it as an environment variable to make it accessible in other stages
                     env.MY_APP = myapp
@@ -30,7 +30,7 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('https://registry.hub.docker.com', 'afroz2022') {
-                        // Access myapp from the environment
+                        // Access myapp from the environment and push the image
                         env.MY_APP.push("latest")
                         env.MY_APP.push("${env.BUILD_ID}")
                     }
