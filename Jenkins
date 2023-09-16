@@ -1,52 +1,39 @@
 pipeline {
     agent any
-
     environment {
         PROJECT_ID = 'teja-gcp99'
         CLUSTER_NAME = 'cluster-1'
         LOCATION = 'us-central1-c'
         CREDENTIALS_ID = 'gke'
     }
-
     stages {
         stage("Checkout code") {
             steps {
                 checkout scm
             }
         }
-
-        stage("Build and Push image") {
+        stage("Build image") {
             steps {
                 script {
-                    // Define the Docker image name
-                    def imageName = "afroz2022/hello:${env.BUILD_ID}"
-
-                    // Authenticate with Docker registry using Jenkins credentials
+                    myapp = docker.build("afroz2022/hello:${env.BUILD_ID}")
+                }
+            }
+        }
+        stage("Push image") {
+            steps {
+                script {
                     docker.withRegistry('https://registry.hub.docker.com', 'docker-credentials-id') {
-                        docker.build(imageName).push()
-                        // Push the image with a specific tag
-                        docker.image(imageName).push("latest")
+                            myapp.push("latest")
+                            myapp.push("${env.BUILD_ID}")
                     }
                 }
             }
         }
-
         stage('Deploy to GKE') {
-            steps {
-            sh "ls -al" // List files in the current directory for debugging purposes
-            sh "sed -i 's/hello:latest/hello:${env.BUILD_ID}/g' deployment.yaml"
-        
-        // Deploy to Google Kubernetes Engine (GKE)
-            step([$class: 'KubernetesEngineBuilder',
-            projectId: env.PROJECT_ID,
-            clusterName: env.CLUSTER_NAME,
-            location: env.LOCATION,
-            credentialsId: env.CREDENTIALS_ID,
-            yamlFilePath: 'path/to/deployment.yaml', // Check this path
-            // Specify other parameters as needed
-        ])
-    }
-}
-
+            steps{
+                sh "sed -i 's/hello:latest/hello:${env.BUILD_ID}/g' deployment.yaml"
+                step([$class: 'KubernetesEngineBuilder', projectId: env.PROJECT_ID, clusterName: env.CLUSTER_NAME, location: env.LOCATION, manifestPattern: 'deployment.yaml', credentialsId: env.CREDENTIALS_ID, verifyDeployments: true])
+            }
+        }
     }
 }
