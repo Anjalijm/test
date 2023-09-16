@@ -15,22 +15,22 @@ pipeline {
             }
         }
 
-        stage("Build and Push image") {
-            steps {
-                script {
-                    // Define the Docker image name
-                    def imageName = "afroz2022/hello:${env.BUILD_ID}"
+    stage("Build and Push image") {
+    steps {
+        script {
+            // Define the Docker image name
+            def imageName = "afroz2022/hello:${env.BUILD_ID}"
 
-                    // Build the Docker image
-                    docker.build(imageName).push()
-
-                    // Push the image with a specific tag
-                    docker.withRegistry('https://registry.hub.docker.com', 'afroz2022') {
-                        docker.image(imageName).push("latest")
-                    }
-                }
+            // Authenticate with Docker registry using Jenkins credentials
+            docker.withRegistry('https://registry.hub.docker.com', 'docker-credentials-id') {
+                docker.build(imageName).push()
+                // Push the image with a specific tag
+                docker.image(imageName).push("latest")
             }
         }
+    }
+}
+
 
         stage('Deploy to GKE') {
             steps {
