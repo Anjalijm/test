@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hello
+  name: hello-uat
   labels:
-    app: hello
+    app: hello-uat
 spec:
   selector:
     matchLabels:
-      app: hello
+      app: hello-uat
   template:
     metadata:
       labels:
-        app: hello
-        tier: hello
+        app: hello-uat
+        tier: hello-uat
     spec:
       containers:
       - name: hello
@@ -25,9 +25,9 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: hello
+  name: hello-uat
   labels:
-    app: hello
+    app: hello-uat
 spec:
   ports:
   - port: 5000
